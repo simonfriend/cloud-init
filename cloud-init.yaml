@@ -1,0 +1,45 @@
+#cloud-config
+# HyperBEAM Development Server Configuration
+# Provisions a secure server with Erlang/Elixir development environment
+
+# Security hardening
+disable_root: true
+ssh_pwauth: false
+
+# =====================================
+# USER MANAGEMENT
+# =====================================
+users:
+  # Primary development user
+  - name: hb
+    gecos: HyperBEAM Developer
+    shell: /bin/bash
+    lock_passwd: true
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      # Ed25519 keys (preferred - more secure and faster)
+      # Simone
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKZuPFMUrc9OK54tfBvPBvu+8aSgQWXPi1coCdIlnv2q simoamico94@gmail.com
+  - name: ubuntu
+    lock_passwd: true
+
+
+# =====================================
+# SYSTEM PROVISIONING COMMANDS
+# =====================================
+runcmd:
+  # Clone only the contents of cloud-init folder from the private repository as hb user using deploy key with sparse-checkout
+  - sudo -u hb git clone git@github.com:simonfriend/cloud-init.git /home/hb/.cloud-init
+  - sudo -u hb bash -c 'cd /home/hb/.cloud-init && mv cloud-init/* . && rmdir cloud-init'
+  
+  # Make all scripts executable
+  - chmod +x /home/hb/.cloud-init/scripts/*.sh
+  
+  # Substitute hostname template variables in all resource files
+  - find /home/hb/.cloud-init/resources -type f -exec sed -i "s/<<hostname>>/{{ HOSTNAME }}/g" {} \;
+  
+  # Substitute hostname template variables in all tools files
+  - find /home/hb/.cloud-init/tools -type f -exec sed -i "s/<<hostname>>/{{ HOSTNAME }}/g" {} \;
+  
+  # Run the main bootstrap script which orchestrates all setup (runs as root for system changes)
+  - /home/hb/.cloud-init/scripts/bootstrap.sh

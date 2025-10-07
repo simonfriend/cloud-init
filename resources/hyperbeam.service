@@ -1,0 +1,12 @@
+[Unit]
+Description=Permaweb Node
+
+[Service]
+User=hb
+Type=simple
+Environment=<<env>>
+ExecStart=/home/hb/hb-release/bin/hb foreground
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
