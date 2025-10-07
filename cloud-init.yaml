@@ -29,7 +29,7 @@ users:
 # =====================================
 runcmd:
   # Clone only the contents of cloud-init folder from the private repository as hb user using deploy key with sparse-checkout
-  - sudo -u hb git clone git@github.com:simonfriend/cloud-init.git /home/hb/.cloud-init
+  - sudo -u hb git clone https://github.com/simonfriend/cloud-init.git /home/hb/.cloud-init
   - sudo -u hb bash -c 'cd /home/hb/.cloud-init && mv cloud-init/* . && rmdir cloud-init'
   
   # Make all scripts executable
